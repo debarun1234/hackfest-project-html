@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initHeroCanvas();
     initProblemCanvas();
     initSolutionCanvas();
+    initDemoCanvas();
 
     // Handle smooth scrolling for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -511,3 +512,191 @@ function initSolutionCanvas() {
     // Start animation
     draw();
 }
+// Canvas Journey for Sarah & Mark - Improved
+function initDemoCanvas() {
+    const canvas = document.getElementById('demoCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // Step Data
+    const steps = [
+        { label: "AI Interview",        color: "#4361ee", icon: "💬" },
+        { label: "Curated Listings",    color: "#f72585", icon: "🗂️" },
+        { label: "Smart Reports",       color: "#4cc9f0", icon: "📄" },
+        { label: "Negotiation",         color: "#ff9e00", icon: "🤝" },
+        { label: "Financial Model",     color: "#7209b7", icon: "📈" },
+        { label: "Guidance",            color: "#80ffdb", icon: "🛡️" }
+    ];
+
+    // Path positions - now compact!
+        const path = [
+        {x:100, y:170},
+        {x:200, y:100},
+        {x:300, y:110},
+        {x:400, y:170},
+        {x:500, y:140},
+        {x:600, y:180}
+    ];
+    // House position
+    const house = {x:670, y:160};
+
+
+    // Draw smooth curved path
+    function drawPath() {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(path[0].x, path[0].y);
+        for(let i=1; i<path.length; i++) {
+            let prev = path[i-1], curr = path[i];
+            let mx = (prev.x + curr.x) / 2;
+            ctx.quadraticCurveTo(mx, prev.y, curr.x, curr.y);
+        }
+        ctx.lineTo(house.x+25, house.y+30);
+        ctx.setLineDash([7,7]);
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "#4361ee44";
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+    }
+
+    // Draw Sarah & Mark at the start
+    function drawSarahAndMark() {
+        // Sarah: Pink, Mark: Blue
+        // Head
+        ctx.save();
+        ctx.globalAlpha = 1.0;
+        ctx.beginPath();
+        ctx.arc(path[0].x - 35, path[0].y + 28, 18, 0, 2 * Math.PI); // Sarah
+        ctx.fillStyle = "#f72585";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(path[0].x - 15, path[0].y + 16, 18, 0, 2 * Math.PI); // Mark
+        ctx.fillStyle = "#4361ee";
+        ctx.fill();
+        // Bodies (simple lines)
+        ctx.strokeStyle = "#f72585";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(path[0].x - 35, path[0].y + 46); // Sarah
+        ctx.lineTo(path[0].x - 35, path[0].y + 66);
+        ctx.stroke();
+        ctx.strokeStyle = "#4361ee";
+        ctx.beginPath();
+        ctx.moveTo(path[0].x - 15, path[0].y + 34); // Mark
+        ctx.lineTo(path[0].x - 15, path[0].y + 54);
+        ctx.stroke();
+        // Labels
+        ctx.font = "bold 13px Montserrat";
+        ctx.fillStyle = "#22223b";
+        ctx.textAlign = "center";
+        ctx.fillText("Sarah", path[0].x - 35, path[0].y + 82);
+        ctx.fillText("Mark", path[0].x - 15, path[0].y + 72);
+        ctx.restore();
+    }
+
+    // Draw step circles with icon and label
+    function drawSteps() {
+        ctx.font = "bold 24px Montserrat";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        for(let i=0; i<steps.length; i++) {
+            // Outer circle
+            ctx.beginPath();
+            ctx.arc(path[i].x, path[i].y, 36, 0, 2 * Math.PI);
+            ctx.fillStyle = steps[i].color+"22";
+            ctx.fill();
+            ctx.lineWidth = 3.5;
+            ctx.strokeStyle = steps[i].color;
+            ctx.stroke();
+
+            // Emoji icon
+            ctx.font = "32px sans-serif";
+            ctx.fillText(steps[i].icon, path[i].x, path[i].y - 4);
+
+            // Label (below)
+            ctx.font = "bold 17px Poppins";
+            ctx.fillStyle = steps[i].color;
+            ctx.fillText(steps[i].label, path[i].x, path[i].y + 38);
+        }
+    }
+
+    // Draw animated traveling dot on path
+    let frame = 0;
+    function drawTravelDot() {
+        // Animate progress along path
+        const totalSegments = path.length;
+        const progress = (frame % 260) / 260 * totalSegments;
+        let seg = Math.floor(progress);
+        let t = progress - seg;
+
+        let x = path[seg].x, y = path[seg].y;
+        if (seg < path.length-1) {
+            x += (path[seg+1].x - path[seg].x) * t;
+            y += (path[seg+1].y - path[seg].y) * t;
+        }
+        ctx.beginPath();
+        ctx.arc(x, y, 12, 0, 2 * Math.PI);
+        ctx.fillStyle = "#4361ee";
+        ctx.globalAlpha = 0.38 + 0.32 * Math.abs(Math.sin(frame/15));
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+    }
+
+    // Draw house at the end, with visible result text
+    function drawHouseAndResult() {
+        let x = house.x, y = house.y;
+        ctx.save();
+        ctx.strokeStyle = "#4361ee";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x, y+70);
+        ctx.lineTo(x, y+25);
+        ctx.lineTo(x+30, y);
+        ctx.lineTo(x+60, y+25);
+        ctx.lineTo(x+60, y+70);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Door
+        ctx.beginPath();
+        ctx.rect(x+23, y+45, 14, 25);
+        ctx.stroke();
+
+        // Windows
+        ctx.beginPath();
+        ctx.rect(x+7, y+32, 13, 13);
+        ctx.rect(x+40, y+32, 13, 13);
+        ctx.stroke();
+
+        // Result text (moved left and up)
+        ctx.font = "bold 17px Montserrat";
+        ctx.fillStyle = "#4361ee";
+        ctx.textAlign = "left";
+        ctx.fillText("Result:", x+68, y+12);
+        ctx.font = "14px Poppins";
+        ctx.fillStyle = "#22223b";
+        ctx.fillText("45+ hrs saved, 8% lower price,", x+68, y+34);
+        ctx.fillText("95% confidence in final decision.", x+68, y+54);
+        ctx.restore();
+    }
+
+    // Animate everything
+    function animate() {
+        ctx.clearRect(0, 0, w, h);
+        drawPath();
+        drawSarahAndMark();
+        drawSteps();
+        drawTravelDot();
+        drawHouseAndResult();
+        frame++;
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initDemoCanvas();
+});
