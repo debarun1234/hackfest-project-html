@@ -1,0 +1,5 @@
+/styles.css
+  Cache-Control: no-cache, must-revalidate, max-age=0
+
+/script.js
+  Cache-Control: no-cache, must-revalidate, max-age=0
